@@ -9,16 +9,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.example.takenote.R;
 import com.example.takenote.data.dagger.component.DaggerUserRepositoryComponent;
 import com.example.takenote.data.dagger.component.UserRepositoryComponent;
 import com.example.takenote.data.repository.UserRepository;
 import com.example.takenote.databinding.ActivityLoginBinding;
-import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
