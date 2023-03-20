@@ -10,7 +10,7 @@ import android.util.Log;
 import com.example.takenote.R;
 import com.example.takenote.data.model.User;
 import com.example.takenote.data.repository.UserRepository;
-import com.example.takenote.view.HomeActivity;
+import com.example.takenote.view.NoteActivity;
 import com.example.takenote.view.LoginActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -45,7 +45,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private void navigateHomeScreen(Activity activity) {
-        activity.startActivity(new Intent(activity, HomeActivity.class));
+        activity.startActivity(new Intent(activity, NoteActivity.class));
         activity.finish();
     }
 
