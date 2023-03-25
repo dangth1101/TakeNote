@@ -14,8 +14,8 @@ import java.util.Map;
 
 @Entity
 public class Note {
-    @PrimaryKey @NonNull
-    private String id;
+    @PrimaryKey(autoGenerate = true) @NonNull
+    private int id;
     private String title;
     private String description;
     private Boolean priority;
@@ -28,8 +28,7 @@ public class Note {
     @ColumnInfo(name = "created_at")
     private long createdDate;
 
-    public Note(String id, String title, String description, Boolean priority) {
-        this.id = id;
+    public Note(String title, String description, Boolean priority) {
         this.title = title;
         this.description = description;
         this.priority = priority;
@@ -37,7 +36,7 @@ public class Note {
         this.updatedDate = System.currentTimeMillis();
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
     public String getTitle() {
@@ -60,7 +59,7 @@ public class Note {
     public void setPriority(Boolean priority) {
         this.priority = priority;
     }
-    public void setId(@NonNull String id) {
+    public void setId(@NonNull int id) {
         this.id = id;
     }
 

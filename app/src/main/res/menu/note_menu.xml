@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/save_note"
-        android:icon="@drawable/ic_check"
+    <item android:id="@+id/sync"
+        android:icon="@drawable/ic_sync"
+        android:title="Save"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/logout"
+        android:icon="@drawable/ic_logout"
         android:title="Save"
         app:showAsAction="ifRoom"/>
 </menu>

@@ -98,4 +98,8 @@ public class NoteRepositoryImpl implements NoteRepository {
             return null;
         }
     }
+
+    public void sync() {
+
+    }
 }

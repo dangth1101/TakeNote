@@ -87,6 +87,11 @@ public class UserRepositoryImpl implements UserRepository {
                 });
     }
 
+    @Override
+    public void sync() {
+
+    }
+
     private void saveUserData(Activity activity, FirebaseUser fuser) {
         User user = new User(fuser.getUid(),
                 fuser.getDisplayName(),

@@ -14,9 +14,11 @@
         android:theme="@style/Theme.TakeNote"
         tools:targetApi="31">
         <activity
-            android:name=".view.AddNoteActivity"
+            android:name=".view.AddEditNoteActivity"
+            android:parentActivityName=".view.NoteActivity"
             android:exported="false" />
         <activity
+            android:launchMode="singleTop"
             android:name=".view.NoteActivity"
             android:exported="false" />
         <activity

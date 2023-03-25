@@ -6,5 +6,7 @@ public interface UserRepository {
     void signIn(Activity activity);
     void logOut(Activity activity);
 
-    public void firebaseAuthWithGoogle(Activity activity,String idToken);
+    void firebaseAuthWithGoogle(Activity activity,String idToken);
+    void sync();
+
 }
