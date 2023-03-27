@@ -14,11 +14,21 @@ import java.util.Map;
 
 @Entity
 public class Note {
-    @PrimaryKey @NonNull
-    private String id;
+    @PrimaryKey(autoGenerate = true) @NonNull
+    private int id;
     private String title;
     private String description;
     private Boolean priority;
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    private String uid;
 
 
 
@@ -28,16 +38,18 @@ public class Note {
     @ColumnInfo(name = "created_at")
     private long createdDate;
 
-    public Note(String id, String title, String description, Boolean priority) {
-        this.id = id;
+    public Note() {}
+
+    public Note(String title, String description, Boolean priority, String uid) {
         this.title = title;
         this.description = description;
         this.priority = priority;
+        this.uid = uid;
         this.createdDate = System.currentTimeMillis();
         this.updatedDate = System.currentTimeMillis();
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
     public String getTitle() {
@@ -60,7 +72,7 @@ public class Note {
     public void setPriority(Boolean priority) {
         this.priority = priority;
     }
-    public void setId(@NonNull String id) {
+    public void setId(@NonNull int id) {
         this.id = id;
     }
 

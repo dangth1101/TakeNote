@@ -17,6 +17,7 @@ import java.util.List;
 
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
     private List<Note> notes = new ArrayList<>();
+    private OnItemClickListener listener;
 
     @NonNull
     @Override
@@ -35,7 +36,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
             holder.ibPriority.setImageResource(R.drawable.star);
         }
         else {
-            holder.ibPriority.setImageResource(R.drawable.start_outline);
+            holder.ibPriority.setImageResource(R.drawable.star_outline);
         }
     }
 
@@ -49,6 +50,10 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
         notifyDataSetChanged();
     }
 
+    public Note getNoteAt(int position) {
+        return notes.get(position);
+    }
+
     class NoteHolder extends RecyclerView.ViewHolder {
         private TextView tvTitle;
         private TextView tvDescription;
@@ -59,6 +64,24 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
             tvTitle = itemView.findViewById(R.id.tv_title);
             tvDescription = itemView.findViewById(R.id.tv_description);
             ibPriority = itemView.findViewById(R.id.img_btn_priority);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (listener != null && position != RecyclerView.NO_POSITION){
+                        listener.onItemClick(notes.get(position));
+                    }
+                }
+            });
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(Note note);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 }

@@ -8,8 +8,9 @@ import java.util.List;
 
 public interface NoteRepository {
     LiveData<List<Note>> getAllNotes();
-    public void insert(Note note);
-    public void delete(Note note);
-    public void update(Note note);
-    public void deleteAll();
+    void insert(Note note);
+    void delete(Note note);
+    void update(Note note);
+    void loadData();
+    void deleteAll();
 }
