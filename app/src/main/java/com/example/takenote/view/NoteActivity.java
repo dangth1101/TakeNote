@@ -112,8 +112,7 @@ public class NoteActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.logout:
                 noteRepository.deleteAll();
-                userRepository.sync(noteRepository.getAllNotes().getValue());
-                userRepository.logOut(this);
+                userRepository.logOut(this, noteRepository.getAllNotes().getValue());
                 Toast.makeText(this, "Log out", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.sync:

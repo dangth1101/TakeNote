@@ -2,20 +2,31 @@ package com.example.takenote.data.repository.impl;
 
 import static com.example.takenote.data.constant.NOTE_PATH;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 
 import com.example.takenote.data.model.Note;
 import com.example.takenote.data.repository.NoteRepository;
 import com.example.takenote.data.room.dao.NoteDao;
 import com.example.takenote.data.room.database.NoteDatabase;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageException;
+import com.google.firebase.storage.StorageReference;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,13 +42,15 @@ public class NoteRepositoryImpl implements NoteRepository {
     private final NoteDao noteDao;
     private final FirebaseAuth firebaseAuth;
     private final FirebaseFirestore fireStore;
+    private final FirebaseStorage fireStorage;
 
 
     public NoteRepositoryImpl(NoteDatabase noteDatabase, FirebaseAuth firebaseAuth,
-                              FirebaseFirestore fireStore) {
+                              FirebaseFirestore fireStore, FirebaseStorage fireStorage) {
         this.noteDao = noteDatabase.noteDao();
         this.firebaseAuth = firebaseAuth;
         this.fireStore = fireStore;
+        this.fireStorage = fireStorage;
 
         allNotes = this.noteDao.getAllNotes();
     }
@@ -118,18 +131,42 @@ public class NoteRepositoryImpl implements NoteRepository {
         deleteAll();
 
         String uid = firebaseAuth.getCurrentUser().getUid();
-        CollectionReference collection =
-                fireStore.collection(NOTE_PATH).document(uid).collection("notes");
-        collection.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<Note> notesList = new ArrayList<>();
-                for (DocumentSnapshot document : task.getResult()) {
-                    Note note = document.toObject(Note.class);
-                    insert(note);
+        StorageReference ref =  fireStorage.getReference().child("notes/");
+
+        ref.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+            @Override
+            public void onSuccess(ListResult listResult) {
+                boolean fileExists = false;
+                for (StorageReference item : listResult.getItems()) {
+                    Log.w("FIRE STORAGE", "onSuccess: " + item.getName());
+                    if (item.getName().equals(uid + ".txt")) {
+                        item.getBytes(Long.MAX_VALUE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                            @Override
+                            public void onSuccess(byte[] bytes) {
+                                String stringData = new String(bytes, StandardCharsets.UTF_8);
+
+                                Gson gson = new Gson();
+                                List<Note> notes = gson.fromJson(stringData,
+                                        new TypeToken<List<Note>>(){}.getType());
+
+                                for (Note note : notes) {
+                                    insert(note);
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                Log.e("FIRE STORAGE", "Error downloading file:", exception);
+                            }
+                        });
+                        return;
+                    }
                 }
             }
-            else {
-                Log.w("FIRE STORE", "loadData: failed");
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.e("FIRE STORAGE", "Error checking for file:", exception);
             }
         });
     }

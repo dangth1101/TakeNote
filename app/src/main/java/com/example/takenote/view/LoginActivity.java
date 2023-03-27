@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
         component.inject(this);
 
         if (userRepository.isLogin()) {
-            userRepository.navigateHomeScreen(this);
+            userRepository.navigateNoteScreen(this);
         }
 
         binding.btnLogin.setOnClickListener(v -> {

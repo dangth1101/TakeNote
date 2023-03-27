@@ -2,6 +2,7 @@ package com.example.takenote.data.dagger.module;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
 import javax.inject.Singleton;
 
@@ -21,4 +22,8 @@ public class FirebaseModule {
     public FirebaseFirestore provideFirebaseFirestore() {
         return FirebaseFirestore.getInstance();
     }
+
+    @Singleton
+    @Provides
+    public FirebaseStorage provideFirebaseStorage() {return FirebaseStorage.getInstance();}
 }
