@@ -4,10 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,13 +18,14 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.takenote.R;
-import com.example.takenote.data.dagger.component.DaggerUserRepositoryComponent;
-import com.example.takenote.data.dagger.component.UserRepositoryComponent;
+import com.example.takenote.data.dagger.component.DaggerNoteComponent;
+import com.example.takenote.data.dagger.component.NoteComponent;
+import com.example.takenote.data.dagger.module.RoomModule;
 import com.example.takenote.data.model.Note;
+import com.example.takenote.data.repository.NoteRepository;
 import com.example.takenote.data.repository.UserRepository;
 import com.example.takenote.databinding.ActivityNoteBinding;
 import com.example.takenote.recyclerview.NoteAdapter;
-import com.example.takenote.viewmodel.NoteViewModel;
 
 import java.util.List;
 
@@ -33,9 +35,11 @@ public class NoteActivity extends AppCompatActivity {
     public static final int ADD_NOTE_REQUEST = 1;
     public static final int EDIT_NOTE_REQUEST = 2;
 
-    private NoteViewModel noteViewModel;
     @Inject
     UserRepository userRepository;
+
+    @Inject
+    NoteRepository noteRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +47,7 @@ public class NoteActivity extends AppCompatActivity {
         ActivityNoteBinding binding = ActivityNoteBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        UserRepositoryComponent component = DaggerUserRepositoryComponent.create();
+        NoteComponent component = DaggerNoteComponent.builder().roomModule(new RoomModule(this)).build();
         component.inject(this);
 
         binding.btnAddNote.setOnClickListener(v -> {
@@ -51,16 +55,17 @@ public class NoteActivity extends AppCompatActivity {
             startActivityForResult(intent, ADD_NOTE_REQUEST);
         });
 
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2,
+                LinearLayoutManager.VERTICAL);
 
-
-        binding.rViewNote.setLayoutManager(new GridLayoutManager(this, 2));
-        binding.rViewNote.setHasFixedSize(true);
+        binding.rViewNote.setLayoutManager(staggeredGridLayoutManager);
 
         NoteAdapter adapter = new NoteAdapter();
         binding.rViewNote.setAdapter(adapter);
 
-        noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-        noteViewModel.getAllNotes().observe(this, new Observer<List<Note>>() {
+        noteRepository.loadData();
+
+        noteRepository.getAllNotes().observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(List<Note> notes) {
                 adapter.setNotes(notes);
@@ -77,7 +82,7 @@ public class NoteActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                noteViewModel.delete(adapter.getNoteAt(viewHolder.getAdapterPosition()));
+                noteRepository.delete(adapter.getNoteAt(viewHolder.getAdapterPosition()));
                 Toast.makeText(NoteActivity.this, "Note deleted", Toast.LENGTH_SHORT).show();
             }
         }).attachToRecyclerView(binding.rViewNote);
@@ -106,9 +111,15 @@ public class NoteActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.logout:
+                noteRepository.deleteAll();
+                userRepository.sync(noteRepository.getAllNotes().getValue());
                 userRepository.logOut(this);
+                Toast.makeText(this, "Log out", Toast.LENGTH_SHORT).show();
+                return true;
             case R.id.sync:
-                userRepository.sync();
+                userRepository.sync(noteRepository.getAllNotes().getValue());
+                Toast.makeText(this, "Syncing", Toast.LENGTH_SHORT).show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -123,8 +134,8 @@ public class NoteActivity extends AppCompatActivity {
             String description = data.getStringExtra(AddEditNoteActivity.EXTRA_DESCRIPTION);
             boolean priority = data.getBooleanExtra(AddEditNoteActivity.EXTRA_PRIORITY, false);
 
-            Note note = new Note(title, description, priority);
-            noteViewModel.insert(note);
+            Note note = new Note(title, description, priority, userRepository.getUID());
+            noteRepository.insert(note);
 
             Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
         }
@@ -139,9 +150,9 @@ public class NoteActivity extends AppCompatActivity {
             String description = data.getStringExtra(AddEditNoteActivity.EXTRA_DESCRIPTION);
             boolean priority = data.getBooleanExtra(AddEditNoteActivity.EXTRA_PRIORITY, false);
 
-            Note note = new Note(title, description, priority);
+            Note note = new Note(title, description, priority, userRepository.getUID());
             note.setId(id);
-            noteViewModel.update(note);
+            noteRepository.update(note);
 
         } else {
             Toast.makeText(this, "Note not saved", Toast.LENGTH_SHORT).show();

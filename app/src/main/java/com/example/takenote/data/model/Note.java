@@ -20,6 +20,16 @@ public class Note {
     private String description;
     private Boolean priority;
 
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    private String uid;
+
 
 
     @ColumnInfo(name = "updated_at")
@@ -28,10 +38,13 @@ public class Note {
     @ColumnInfo(name = "created_at")
     private long createdDate;
 
-    public Note(String title, String description, Boolean priority) {
+    public Note() {}
+
+    public Note(String title, String description, Boolean priority, String uid) {
         this.title = title;
         this.description = description;
         this.priority = priority;
+        this.uid = uid;
         this.createdDate = System.currentTimeMillis();
         this.updatedDate = System.currentTimeMillis();
     }

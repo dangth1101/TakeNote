@@ -14,7 +14,7 @@ import dagger.Provides;
 public class UserRepositoryModule {
     @Singleton
     @Provides
-    public UserRepository provideNoteRepository(FirebaseAuth fireAuth,
+    public UserRepository provideUserRepository(FirebaseAuth fireAuth,
                                                 FirebaseFirestore fireStore) {
         return new UserRepositoryImpl(fireAuth, fireStore);
     }

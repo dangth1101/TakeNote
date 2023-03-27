@@ -9,8 +9,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.example.takenote.data.dagger.component.DaggerUserRepositoryComponent;
-import com.example.takenote.data.dagger.component.UserRepositoryComponent;
+import com.example.takenote.data.dagger.component.DaggerUserComponent;
+import com.example.takenote.data.dagger.component.UserComponent;
 import com.example.takenote.data.repository.UserRepository;
 import com.example.takenote.databinding.ActivityLoginBinding;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -30,8 +30,12 @@ public class LoginActivity extends AppCompatActivity {
         ActivityLoginBinding binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        UserRepositoryComponent component = DaggerUserRepositoryComponent.create();
+        UserComponent component = DaggerUserComponent.create();
         component.inject(this);
+
+        if (userRepository.isLogin()) {
+            userRepository.navigateHomeScreen(this);
+        }
 
         binding.btnLogin.setOnClickListener(v -> {
             userRepository.signIn(this);

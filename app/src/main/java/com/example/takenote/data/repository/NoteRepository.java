@@ -11,5 +11,6 @@ public interface NoteRepository {
     void insert(Note note);
     void delete(Note note);
     void update(Note note);
+    void loadData();
     void deleteAll();
 }

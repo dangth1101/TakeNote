@@ -1,7 +1,9 @@
 package com.example.takenote.data.repository.impl;
 
-import android.app.Application;
+import static com.example.takenote.data.constant.NOTE_PATH;
+
 import android.os.AsyncTask;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
@@ -9,11 +11,16 @@ import com.example.takenote.data.model.Note;
 import com.example.takenote.data.repository.NoteRepository;
 import com.example.takenote.data.room.dao.NoteDao;
 import com.example.takenote.data.room.database.NoteDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NoteRepositoryImpl implements NoteRepository {
-    private NoteDao noteDao;
+
     private LiveData<List<Note>> allNotes;
 
     @Override
@@ -21,10 +28,18 @@ public class NoteRepositoryImpl implements NoteRepository {
         return allNotes;
     }
 
-    public NoteRepositoryImpl(Application application) {
-        NoteDatabase database = NoteDatabase.getInstance(application);
-        noteDao = database.noteDao();
-        allNotes = noteDao.getAllNotes();
+    private final NoteDao noteDao;
+    private final FirebaseAuth firebaseAuth;
+    private final FirebaseFirestore fireStore;
+
+
+    public NoteRepositoryImpl(NoteDatabase noteDatabase, FirebaseAuth firebaseAuth,
+                              FirebaseFirestore fireStore) {
+        this.noteDao = noteDatabase.noteDao();
+        this.firebaseAuth = firebaseAuth;
+        this.fireStore = fireStore;
+
+        allNotes = this.noteDao.getAllNotes();
     }
 
     public void insert(Note note) {
@@ -99,7 +114,23 @@ public class NoteRepositoryImpl implements NoteRepository {
         }
     }
 
-    public void sync() {
+    public void loadData() {
+        deleteAll();
 
+        String uid = firebaseAuth.getCurrentUser().getUid();
+        CollectionReference collection =
+                fireStore.collection(NOTE_PATH).document(uid).collection("notes");
+        collection.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<Note> notesList = new ArrayList<>();
+                for (DocumentSnapshot document : task.getResult()) {
+                    Note note = document.toObject(Note.class);
+                    insert(note);
+                }
+            }
+            else {
+                Log.w("FIRE STORE", "loadData: failed");
+            }
+        });
     }
 }
