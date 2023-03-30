@@ -63,7 +63,7 @@ public class NoteActivity extends AppCompatActivity {
         NoteAdapter adapter = new NoteAdapter();
         binding.rViewNote.setAdapter(adapter);
 
-        noteRepository.loadData();
+        if (noteRepository.isEmpty()) noteRepository.loadData(this);
 
         noteRepository.getAllNotes().observe(this, new Observer<List<Note>>() {
             @Override
@@ -116,8 +116,7 @@ public class NoteActivity extends AppCompatActivity {
                 Toast.makeText(this, "Log out", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.sync:
-                userRepository.sync(noteRepository.getAllNotes().getValue());
-                Toast.makeText(this, "Syncing", Toast.LENGTH_SHORT).show();
+                userRepository.sync(this, noteRepository.getAllNotes().getValue());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

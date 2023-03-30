@@ -6,6 +6,7 @@ import static com.example.takenote.data.constant.USER_PATH;
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -122,6 +123,7 @@ public class UserRepositoryImpl implements UserRepository {
                         assert user != null;
                         saveUserData(user);
                     } else {
+                        Toast.makeText(activity, task.getException().toString(), Toast.LENGTH_SHORT).show();
                         Log.w("FIRE AUTH", "signInWithCredential:failure", task.getException());
                     }
                 });
@@ -129,7 +131,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 
     @Override
-    public void sync(List<Note> notes) {
+    public void sync(Activity activity, List<Note> notes) {
         Gson gson = new Gson();
         String uid = fireAuth.getCurrentUser().getUid();
 
@@ -141,11 +143,13 @@ public class UserRepositoryImpl implements UserRepository {
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast.makeText(activity, "Successful Syncing", Toast.LENGTH_SHORT).show();
                 Log.d("FIRE STORAGE", "String data uploaded successfully!");
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
+                Toast.makeText(activity, "Failed syncing", Toast.LENGTH_SHORT).show();
                 Log.e("FIRE STORAGE", "Error uploading string data:", exception);
             }
         });
