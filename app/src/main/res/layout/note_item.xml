@@ -25,7 +25,8 @@
             android:text="Title"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:paddingStart="8dp"
-            tools:ignore="RtlSymmetry" />
+            tools:ignore="RtlSymmetry"
+            android:textColor="@color/black"/>
 
         <TextView
             android:id="@+id/tv_description"
@@ -36,7 +37,8 @@
             android:text="Description \n wew \n wew \n wew \n wewe"
             android:maxLines="4"
             android:ellipsize="end"
-            tools:ignore="RtlSymmetry" />
+            tools:ignore="RtlSymmetry"
+            android:textColor="@color/black"/>
 
         <ImageButton
             android:id="@+id/img_btn_priority"

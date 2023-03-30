@@ -1,8 +1,6 @@
 package com.example.takenote.data.repository.impl;
 
-import static com.example.takenote.data.constant.NOTE_PATH;
-
-import android.net.Uri;
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -16,19 +14,16 @@ import com.example.takenote.data.room.database.NoteDatabase;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class NoteRepositoryImpl implements NoteRepository {
 
@@ -70,6 +65,20 @@ public class NoteRepositoryImpl implements NoteRepository {
     public void deleteAll() {
         new DeleteAllNotesAsyncTask(noteDao).execute();
     }
+
+    public Boolean isEmpty() {
+        IsEmptyAsyncTask task =  new IsEmptyAsyncTask(noteDao);
+        task.execute();
+
+        try {
+            return task.get();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private static class InsertNoteAsyncTask extends AsyncTask<Note, Void, Void> {
         private NoteDao noteDao;
@@ -127,7 +136,20 @@ public class NoteRepositoryImpl implements NoteRepository {
         }
     }
 
-    public void loadData() {
+    private static class IsEmptyAsyncTask extends AsyncTask<Void, Void, Boolean> {
+        private NoteDao noteDao;
+
+        private IsEmptyAsyncTask(NoteDao noteDao) {
+            this.noteDao = noteDao;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void...voids) {
+            return noteDao.nNote() == 0;
+        }
+    }
+
+    public void loadData(Activity activity) {
         deleteAll();
 
         String uid = firebaseAuth.getCurrentUser().getUid();

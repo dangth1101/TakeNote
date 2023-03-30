@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.takenote.data.dagger.component.DaggerUserComponent;
 import com.example.takenote.data.dagger.component.UserComponent;
@@ -52,6 +53,9 @@ public class LoginActivity extends AppCompatActivity {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 userRepository.firebaseAuthWithGoogle(this, account.getIdToken());
             } catch (ApiException e) {
+                if (e.getStatusCode() == 7) {
+                    Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+                }
                 Log.w("GOOGLE SIGN IN", "Google sign in failed", e);
             }
         }

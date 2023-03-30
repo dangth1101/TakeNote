@@ -11,7 +11,7 @@ public interface UserRepository {
     void logOut(Activity activity, List<Note> notes);
 
     void firebaseAuthWithGoogle(Activity activity,String idToken);
-    void sync(List<Note> notes);
+    void sync(Activity activity, List<Note> notes);
 
     String getUID();
 
